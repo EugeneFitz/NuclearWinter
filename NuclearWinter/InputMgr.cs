@@ -55,7 +55,7 @@ namespace NuclearWinter
 
 #if WINDOWS
             PreviousKeyboardState = KeyboardState;
-           KeyboardState = new LocalizedKeyboardState( Keyboard.GetState() );
+            KeyboardState = new LocalizedKeyboardState( Keyboard.GetState() );
 #endif
 
             for( int iGamePad = 0; iGamePad < siMaxInput; iGamePad++ )
@@ -102,6 +102,14 @@ namespace NuclearWinter
                             break;
                     }
 
+#if WINDOWS
+                    if( ! bButtonPressed )
+                    {
+                        Keys key = GetKeyboardMapping( button );
+                        bButtonPressed = key != Keys.None && KeyboardState.IsKeyDown( key ) && ! PreviousKeyboardState.IsKeyDown( key );
+                    }
+#endif
+
                     if( bButtonPressed )
                     {
                         mafRepeatTimers[ iGamePad ] = 0f;
@@ -112,7 +120,17 @@ namespace NuclearWinter
 
                 if( maLastPressedButtons[iGamePad] != 0 )
                 {
-                    if( GamePadStates[ iGamePad ].IsButtonDown( maLastPressedButtons[ iGamePad ] ) )
+                    bool bIsButtonStillDown = GamePadStates[ iGamePad ].IsButtonDown( maLastPressedButtons[ iGamePad ] );
+
+#if WINDOWS
+                    if( ! bIsButtonStillDown )
+                    {
+                        Keys key = GetKeyboardMapping( maLastPressedButtons[iGamePad] );
+                        bIsButtonStillDown = key != Keys.None && KeyboardState.IsKeyDown( key );
+                    }
+#endif
+
+                    if( bIsButtonStillDown )
                     {
                         float fRepeatValue      = ( mafRepeatTimers[ iGamePad ] - sfButtonRepeatDelay ) % ( sfButtonRepeatInterval );
                         float fNewRepeatValue   = ( mafRepeatTimers[ iGamePad ] + fElapsedTime - sfButtonRepeatDelay ) % ( sfButtonRepeatInterval );
