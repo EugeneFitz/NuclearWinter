@@ -6,6 +6,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
+using Microsoft.Xna.Framework.Storage;
 
 #if WINDOWS_PHONE
 using Microsoft.Phone.Shell;
@@ -26,9 +27,14 @@ namespace NuclearWinter
         public NuclearGame( TargetPlatform _platform )
         {
 #if WINDOWS_PHONE
-            PhoneApplicationService.Current.Deactivated += new EventHandler<DeactivatedEventArgs>(OnDeactivated);
-            PhoneApplicationService.Current.Closing     += new EventHandler<ClosingEventArgs>(OnClosing);
+            PhoneApplicationService.Current.Deactivated += new EventHandler<DeactivatedEventArgs>( OnDeactivated );
+            PhoneApplicationService.Current.Closing     += new EventHandler<ClosingEventArgs>( OnClosing );
 #endif
+
+#if WINDOWS || XBOX
+            StorageDevice.DeviceChanged                 += new EventHandler<EventArgs>( OnStorageDeviceChange );
+#endif
+
 
             Graphics = new GraphicsDeviceManager(this);
 
@@ -65,6 +71,26 @@ namespace NuclearWinter
             base.Initialize();
         }
 
+#if WINDOWS || XBOX
+        protected override void Update( GameTime _time )
+        {
+#if GAMERSERVICES
+            if( ! Guide.IsVisible )
+            {
+#endif
+                if( mbShouldDisplayStorageSelector && PlayerInCharge.HasValue )
+                {
+                    StorageDevice.BeginShowSelector( PlayerInCharge.Value, new AsyncCallback( StorageDeviceCallback ), null );
+                    mbShouldDisplayStorageSelector= false;
+                }
+#if GAMERSERVICES
+            }
+#endif
+
+            base.Update( _time );
+        }
+#endif
+
 #if WINDOWS_PHONE
         //----------------------------------------------------------------------
         protected void OnDeactivated( object _sender, DeactivatedEventArgs _args )
@@ -93,6 +119,43 @@ namespace NuclearWinter
             if( MediaPlayer.GameHasControl )
             {
                 MediaPlayer.Stop();
+            }
+        }
+#endif
+
+#if WINDOWS || XBOX
+        //----------------------------------------------------------------------
+        public void ShowDeviceSelector( Action _deviceSelectedCallback )
+        {
+            SaveGameStorageDevice = null;
+            mbShouldDisplayStorageSelector = true;
+
+            DeviceSelectedCallback = _deviceSelectedCallback;
+        }
+
+        //----------------------------------------------------------------------
+        void StorageDeviceCallback( IAsyncResult _result )
+        {
+            SaveGameStorageDevice = StorageDevice.EndShowSelector( _result );
+            
+            if( SaveGameStorageDevice == null )
+            {
+                // The dialog was cancelled, we're not taking no as an answer!
+                // Let's ask again
+                mbShouldDisplayStorageSelector = true;
+            }
+            else
+            {
+                DeviceSelectedCallback();
+            }
+        }
+        
+        //----------------------------------------------------------------------
+        protected void OnStorageDeviceChange( object _sender, EventArgs _args )
+        {
+            if( SaveGameStorageDevice != null )
+            {
+                mbShouldDisplayStorageSelector = ! SaveGameStorageDevice.IsConnected;
             }
         }
 #endif
@@ -247,12 +310,22 @@ namespace NuclearWinter
         //----------------------------------------------------------------------
         public GraphicsDeviceManager                        Graphics;
         public SpriteBatch                                  SpriteBatch;
+        
+#if WINDOWS || XBOX
+        // Index of the player responsible for menu navigation (or null if none yet)
+        public PlayerIndex?                                 PlayerInCharge;
+#endif
 
         public SaveData                                     SaveGame;
+#if WINDOWS || XBOX
+        public StorageDevice                                SaveGameStorageDevice;
+        bool                                                mbShouldDisplayStorageSelector;
+        Action                                              DeviceSelectedCallback;
+#endif
 
         //----------------------------------------------------------------------
         // Sound & Music
-        public Song                                 Song;
+        public Song                                         Song;
 
         //----------------------------------------------------------------------
         // Game States
