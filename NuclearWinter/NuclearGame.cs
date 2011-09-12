@@ -320,7 +320,7 @@ namespace NuclearWinter
         public PlayerIndex?                                 PlayerInCharge;
 #endif
 
-        public SaveHandler                                  NuclearSaveHandler;
+        public Storage.SaveHandler                          NuclearSaveHandler;
 #if WINDOWS || XBOX
         public StorageDevice                                SaveGameStorageDevice;
         bool                                                mbShouldDisplayStorageSelector;

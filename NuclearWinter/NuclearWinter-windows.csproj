@@ -99,7 +99,10 @@
     <Compile Include="GameFlow\IGameState.cs" />
     <Compile Include="Input\Accelerometer.cs" />
     <Compile Include="Input\WindowMessageFilter.cs" />
-    <Compile Include="SaveHandler.cs" />
+    <Compile Include="Storage\StorageHandler.cs" />
+    <Compile Include="Storage\WindowsStorageHandler.cs" />
+    <Compile Include="Storage\XboxStorageHandler.cs" />
+    <Compile Include="Storage\SaveHandler.cs" />
     <Compile Include="Input\InputManager.cs" />
     <Compile Include="Input\TouchInputManager.cs" />
     <Compile Include="LocalizedKeyboardState.cs" />

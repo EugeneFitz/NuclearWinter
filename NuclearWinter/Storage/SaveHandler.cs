@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System;
 using Microsoft.Xna.Framework.Storage;
 
-namespace NuclearWinter
+namespace NuclearWinter.Storage
 {
     public abstract class SaveHandler
     {
