@@ -21,8 +21,26 @@ namespace NuclearWinter.UI
         // Popup
         Screen mPopupScreen;
         public Screen           PopupScreen             { get { return mPopupScreen; } }
-        public FixedWidget      PopupScreenPaneAnchor   { get; private set; }
-        Pane                    mActivePopupPane;
+
+        FixedGroup mPopupGroup;
+        public FixedGroup       PopupGroup
+        {
+            get { return mPopupGroup; }
+            set {
+                if( mPopupGroup != null )
+                {
+                    mPopupScreen.Root.RemoveChild( mPopupGroup );
+                }
+
+                mPopupGroup = value;
+
+                if( mPopupGroup != null )
+                {
+                    mPopupScreen.Root.AddChild( mPopupGroup );
+                }
+            }
+        }
+
         public MessagePopupPane MessagePopupPane        { get; private set; }
 
         //----------------------------------------------------------------------
@@ -43,45 +61,24 @@ namespace NuclearWinter.UI
             fade.Color = mPopupScreen.Style.PopupBackgroundFadeColor;
             PopupScreen.Root.AddChild( new NuclearWinter.UI.FixedWidget( fade, AnchoredRect.CreateFull(0) ) );
 
-            PopupScreenPaneAnchor   = new NuclearWinter.UI.FixedWidget( PopupScreen, AnchoredRect.CreateFull(0) );
-            PopupScreen.Root.AddChild( PopupScreenPaneAnchor );
-
             //------------------------------------------------------------------
             MessagePopupPane        = new MessagePopupPane( this );
         }
 
         //----------------------------------------------------------------------
-        public void DisplayPopup( Pane _popupPane )
-        {
-            Debug.Assert( mActivePopupPane == null );
-            Debug.Assert( _popupPane.FixedGroup.Screen == PopupScreen );
-
-            mActivePopupPane = _popupPane;
-            PopupScreenPaneAnchor.Child = mActivePopupPane.FixedGroup;
-        }
-
-        //----------------------------------------------------------------------
-        public void ClosePopup()
-        {
-            Debug.Assert( mActivePopupPane != null );
-            PopupScreenPaneAnchor.Child = null;
-            mActivePopupPane = null;
-        }
-
-        //----------------------------------------------------------------------
         public virtual void Update( float _fElapsedTime )
         {
-            MenuScreen.IsActive     = Game.IsActive && ! Game.GameStateMgr.IsSwitching && mActivePopupPane == null;
-            PopupScreen.IsActive    = Game.IsActive && ! Game.GameStateMgr.IsSwitching && mActivePopupPane != null;
+            MenuScreen.IsActive     = Game.IsActive && ! Game.GameStateMgr.IsSwitching && PopupGroup == null;
+            PopupScreen.IsActive    = Game.IsActive && ! Game.GameStateMgr.IsSwitching && PopupGroup != null;
 
             MenuScreen.HandleInput();
-            if( mActivePopupPane != null )
+            if( PopupGroup != null )
             {
                 PopupScreen.HandleInput();
             }
 
             MenuScreen.Update( _fElapsedTime );
-            if( mActivePopupPane != null )
+            if( PopupGroup != null )
             {
                 PopupScreen.Update( _fElapsedTime );
             }
@@ -92,7 +89,7 @@ namespace NuclearWinter.UI
         {
             MenuScreen.Draw();
 
-            if( mActivePopupPane != null )
+            if( PopupGroup != null )
             {
                 PopupScreen.Draw();
             }

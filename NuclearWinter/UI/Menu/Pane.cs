@@ -15,7 +15,6 @@ namespace NuclearWinter.UI
         }
 
         public abstract void Open();
-        public abstract void Close();
 
         public virtual void Focus()
         {

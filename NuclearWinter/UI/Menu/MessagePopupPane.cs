@@ -67,12 +67,12 @@ namespace NuclearWinter.UI
         //----------------------------------------------------------------------
         public override void Open()
         {
-            Manager.DisplayPopup( this );
+            Manager.PopupGroup = FixedGroup;
             Focus();
         }
 
         //----------------------------------------------------------------------
-        public override void Close()
+        void Close()
         {
             TitleLabel.Text = "";
             MessageLabel.Text = "";
@@ -80,7 +80,7 @@ namespace NuclearWinter.UI
             CloseButton.Text = "Close";
 
             ShowSpinningWheel = false;
-            Manager.ClosePopup();
+            Manager.PopupGroup = null;
         }
     }
 }
