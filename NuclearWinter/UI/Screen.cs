@@ -26,7 +26,7 @@ namespace NuclearWinter.UI
         public int          Height              { get; private set; }
         public Rectangle    Bounds              { get { return new Rectangle( 0, 0, Width, Height ); } }
 
-        public FixedGroup   Root                { get; private set; }
+        public Group        Root                { get; private set; }
 
         public Widget       FocusedWidget       { get; private set; }
         bool                mbHasActivatedFocusedWidget;
@@ -45,8 +45,7 @@ namespace NuclearWinter.UI
             Width   = _iWidth;
             Height  = _iHeight;
 
-
-            Root    = new FixedGroup( this );
+            Root    = new Group( this );
         }
 
         //----------------------------------------------------------------------
@@ -54,11 +53,10 @@ namespace NuclearWinter.UI
         {
             Width = _iWidth;
             Height = _iHeight;
+            Root.DoLayout( Bounds );
 
             // This will prevent accidental clicks when maximizing the window
             miIgnoreClickFrames = 3;
-
-            Root.DoLayout( new Rectangle( 0, 0, Width, Height ) );
         }
 
         //----------------------------------------------------------------------
