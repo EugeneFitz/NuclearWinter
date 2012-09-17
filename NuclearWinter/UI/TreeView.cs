@@ -763,8 +763,15 @@ namespace NuclearWinter.UI
 
                 if( oldHoveredNode != HoveredNode )
                 {
-                    mHoveredActionButton = null;
-                    mbIsHoveredActionButtonDown = false;
+                    if( mHoveredActionButton != null )
+                    {
+                        if( mbIsHoveredActionButtonDown )
+                        {
+                            mHoveredActionButton.ResetPressState();
+                            mbIsHoveredActionButtonDown = false;
+                        }
+                        mHoveredActionButton = null;
+                    }
                 }
 
                 if( ! IsDragging && HoveredNode != null )
@@ -813,6 +820,16 @@ namespace NuclearWinter.UI
                     }
                     mHoveredActionButton = null;
                 }
+            }
+            else
+            if( mHoveredActionButton != null )
+            {
+                if( mbIsHoveredActionButtonDown )
+                {
+                    mHoveredActionButton.ResetPressState();
+                    mbIsHoveredActionButtonDown = false;
+                }
+                mHoveredActionButton = null;
             }
         }
 

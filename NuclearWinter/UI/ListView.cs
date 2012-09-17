@@ -589,6 +589,16 @@ namespace NuclearWinter.UI
         protected internal override void OnMouseOut( Point _hitPoint )
         {
             HoveredRow = null;
+
+            if( mHoveredActionButton != null )
+            {
+                if( mbIsHoveredActionButtonDown )
+                {
+                    mHoveredActionButton.ResetPressState();
+                    mbIsHoveredActionButtonDown = false;
+                }
+                mHoveredActionButton = null;
+            }
         }
 
         //----------------------------------------------------------------------
