@@ -7,12 +7,8 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Graphics;
 using System.Diagnostics;
 
-#if !MONOGAME
+#if !FNA
 using OSKey = System.Windows.Forms.Keys;
-#elif !MONOMAC
-using OSKey = OpenTK.Input.Key;
-#else
-using OSKey = MonoMac.AppKit.NSKey;
 #endif
 
 namespace NuclearWinter.UI
@@ -1378,9 +1374,7 @@ namespace NuclearWinter.UI
         //----------------------------------------------------------------------
         public override void OnMouseEnter( Point _hitPoint )
         {
-#if !MONOGAME
-            Screen.Game.Form.Cursor = System.Windows.Forms.Cursors.IBeam;
-#endif
+            Screen.Game.SetCursor( MouseCursor.IBeam );
 
             base.OnMouseEnter( _hitPoint );
         }
@@ -1388,9 +1382,7 @@ namespace NuclearWinter.UI
         //----------------------------------------------------------------------
         public override void OnMouseOut( Point _hitPoint )
         {
-#if !MONOGAME
-            Screen.Game.Form.Cursor = System.Windows.Forms.Cursors.Default;
-#endif
+            Screen.Game.SetCursor( MouseCursor.Default );
 
             base.OnMouseOut( _hitPoint );
         }
@@ -1455,15 +1447,11 @@ namespace NuclearWinter.UI
                 var textSpan = ! bShortcutKey ? GetTextSpanAtPosition( _hitPoint ) : null;
                 if( textSpan != null && textSpan.SpanType == TextSpanType.Link )
                 {
-#if !MONOGAME
-            Screen.Game.Form.Cursor = System.Windows.Forms.Cursors.Hand;
-#endif
+                    Screen.Game.SetCursor( MouseCursor.Hand );
                 }
                 else
                 {
-#if !MONOGAME
-            Screen.Game.Form.Cursor = System.Windows.Forms.Cursors.IBeam;
-#endif
+                    Screen.Game.SetCursor( MouseCursor.IBeam );
                 }
 
                 foreach( var remoteCaret in RemoteCaretsById.Values )
@@ -1577,7 +1565,7 @@ namespace NuclearWinter.UI
                 {
                     strText += TextBlocks[ iStartBlockIndex ].Content.SimpleText.Substring( iStartOffset, iEndOffset - iStartOffset );
                 }
-#if !MONOMAC
+#if !FNA
                 // NOTE: For this to work, you must put [STAThread] before your Main()
                 
                 try
@@ -1586,9 +1574,7 @@ namespace NuclearWinter.UI
                     System.Windows.Forms.Clipboard.SetText( strText ); //, System.Windows.Forms.TextDataFormat.Html );
                 } catch {}
 #else
-                var pasteBoard = MonoMac.AppKit.NSPasteboard.GeneralPasteboard;
-                pasteBoard.ClearContents();
-                pasteBoard.SetStringForType( strText, MonoMac.AppKit.NSPasteboard.NSStringType );
+                SDL2.SDL.SDL_SetClipboardText( strText );
 #endif
             }
         }
@@ -1597,7 +1583,7 @@ namespace NuclearWinter.UI
         {
             if( IsReadOnly ) return;
 
-#if !MONOMAC
+#if !FNA
             // NOTE: For this to work, you must put [STAThread] before your Main()
             
             // TODO: Add HTML support - http://msdn.microsoft.com/en-us/library/Aa767917.aspx#unknown_156
@@ -1608,8 +1594,7 @@ namespace NuclearWinter.UI
                 strPastedText = System.Windows.Forms.Clipboard.GetText();
             } catch {}
 #else
-            var pasteBoard = MonoMac.AppKit.NSPasteboard.GeneralPasteboard;
-            string strPastedText = pasteBoard.GetStringForType( MonoMac.AppKit.NSPasteboard.NSStringType );
+            string strPastedText = SDL2.SDL.SDL_GetClipboardText();
 #endif
 
             if( strPastedText != null )
@@ -1691,9 +1676,8 @@ namespace NuclearWinter.UI
                         PasteFromClipboard();
                     }
                     break;
-#if !MONOMAC
                 case OSKey.Enter:
-#else
+#if FNA
                 case OSKey.Return:
 #endif
                     if( ! IsReadOnly )
@@ -1768,11 +1752,7 @@ namespace NuclearWinter.UI
                         }
                     }
                     break;
-#if !MONOMAC
                 case OSKey.Back:
-#else
-                case OSKey.ForwardDelete:
-#endif
                     if( ! IsReadOnly )
                     {
                         if( Caret.HasSelection )
@@ -1864,20 +1844,12 @@ namespace NuclearWinter.UI
                         }
                     }
                     break;
-#if !MONOMAC
                 case OSKey.Left: {
-#else
-                case OSKey.LeftArrow: {
-#endif
                     Caret.MoveLeft( bShift, bCtrl );
                     mbScrollToCaret = true;
                     break;
                 }
-#if !MONOMAC
                 case OSKey.Right: {
-#else
-                case OSKey.RightArrow: {
-#endif
                     Caret.MoveRight( bShift, bCtrl );
                     mbScrollToCaret = true;
                     break;
@@ -1890,19 +1862,11 @@ namespace NuclearWinter.UI
                     Caret.MoveStart( bShift );
                     mbScrollToCaret = true;
                     break;
-#if !MONOMAC
                 case OSKey.Up:
-#else
-                case OSKey.UpArrow:
-#endif
                     Caret.MoveUp( bShift );
                     mbScrollToCaret = true;
                     break;
-#if !MONOMAC
                 case OSKey.Down:
-#else
-                case OSKey.DownArrow:
-#endif
                     Caret.MoveDown( bShift );
                     mbScrollToCaret = true;
                     break;
@@ -1948,6 +1912,8 @@ namespace NuclearWinter.UI
         //----------------------------------------------------------------------
         public override void Draw()
         {
+            if( LayoutRect.Height < 0 ) return;
+
             if( PanelTex != null )
             {
                 Screen.DrawBox( PanelTex, LayoutRect, Screen.Style.RichTextAreaFrameCornerSize, Color.White );

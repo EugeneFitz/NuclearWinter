@@ -9,12 +9,8 @@ using Microsoft.Xna.Framework.Input;
 using NuclearWinter.Collections;
 using System.Diagnostics;
 
-#if !MONOGAME
+#if !FNA
 using OSKey = System.Windows.Forms.Keys;
-#elif !MONOMAC
-using OSKey = OpenTK.Input.Key;
-#else
-using OSKey = MonoMac.AppKit.NSKey;
 #endif
 
 namespace NuclearWinter.UI
@@ -684,16 +680,12 @@ namespace NuclearWinter.UI
 
             if( bWasHoveringNewRow && ! mbIsHoveringNewRow )
             {
-#if !MONOGAME
-                Screen.Game.Form.Cursor = System.Windows.Forms.Cursors.Default;
-#endif
+                Screen.Game.SetCursor( MouseCursor.Default );
             }
             else
             if( ! bWasHoveringNewRow && mbIsHoveringNewRow )
             {
-#if !MONOGAME
-                Screen.Game.Form.Cursor = System.Windows.Forms.Cursors.Hand;
-#endif
+                Screen.Game.SetCursor( MouseCursor.Hand );
             }
         }
 
@@ -704,9 +696,7 @@ namespace NuclearWinter.UI
 
             if( mbIsHoveringNewRow )
             {
-#if !MONOGAME
-                Screen.Game.Form.Cursor = System.Windows.Forms.Cursors.Default;
-#endif
+                Screen.Game.SetCursor( MouseCursor.Default );
                 mbIsHoveringNewRow = false;
             }
 
@@ -935,9 +925,8 @@ namespace NuclearWinter.UI
                 case OSKey.PageDown:
                     Scrollbar.Offset += LayoutRect.Height;
                     break;
-#if !MONOMAC
                 case OSKey.Enter:
-#else
+#if FNA
                 case OSKey.Return:
 #endif
                     if( SelectedRow != null && ValidateHandler != null ) ValidateHandler( this );

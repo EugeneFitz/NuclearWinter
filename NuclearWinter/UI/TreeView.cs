@@ -8,12 +8,8 @@ using NuclearWinter.Collections;
 using System.Diagnostics;
 using Microsoft.Xna.Framework.Input;
 
-#if !MONOGAME
+#if !FNA
 using OSKey = System.Windows.Forms.Keys;
-#elif !MONOMAC
-using OSKey = OpenTK.Input.Key;
-#else
-using OSKey = MonoMac.AppKit.NSKey;
 #endif
 
 namespace NuclearWinter.UI
@@ -1160,9 +1156,8 @@ namespace NuclearWinter.UI
                 case OSKey.PageDown:
                     Scrollbar.Offset += LayoutRect.Height;
                     break;
-#if !MONOMAC
                 case OSKey.Enter:
-#else
+#if FNA
                 case OSKey.Return:
 #endif
                     if( ValidateHandler != null && SelectedNode != null )
